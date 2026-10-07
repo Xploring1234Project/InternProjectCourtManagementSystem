@@ -1,0 +1,36 @@
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a3a5c 0%, #2e6da4 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 20px 0;
+}
+
+.login-container {
+  position: relative;
+  z-index: 5;
+}
+
+.login-card {
+  border: none;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.logo-glow {
+  font-size: 3.5rem;
+  display: inline-block;
+}
+
+.form-control {
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 0.25rem rgba(46, 109, 164, 0.25);
+  border-color: #2e6da4;
+}

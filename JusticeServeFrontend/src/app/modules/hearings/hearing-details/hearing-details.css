@@ -1,0 +1,15 @@
+/* Component-specific styles */
+.status-msg-alert {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.proceeding-item {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.proceeding-item:last-child {
+  border-bottom: none;
+}

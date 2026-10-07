@@ -1,0 +1,153 @@
+<div class="page-header d-flex justify-content-between align-items-center m-3">
+  <h4><i class="bi bi-person me-2"></i>Citizen Profile</h4>
+  <a routerLink="/citizens" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Back
+  </a>
+</div>
+
+@if (!isLoading() && citizenData()) {
+  <div class="p-4">
+    <div class="row g-3">
+      <!-- Sidebar Info Card -->
+      <div class="col-lg-4">
+        <div class="card text-center p-4">
+          <div class="profile-initial-avatar bg-primary mx-auto mb-3">
+            {{ citizenData()?.name?.[0] }}
+          </div>
+          <h5 class="fw-bold">{{ citizenData()?.name }}</h5>
+          <span class="badge mb-2 w-50 m-auto" [ngClass]="citizenData()?.status === 'ACTIVE' ? 'bg-success' : 'bg-danger'">
+            {{ citizenData()?.status }}
+          </span>
+          <div class="text-muted small-id-text">Citizen ID: #{{ citizenData()?.citizenId }}</div>
+          <hr>
+          <div class="text-start">
+            <div class="mb-2">
+              <i class="bi bi-calendar3 me-2 text-muted"></i>
+              {{ citizenData()?.dob ? (citizenData()?.dob | date:'mediumDate') : 'N/A' }}
+            </div>
+            <div class="mb-2">
+              <i class="bi bi-gender-ambiguous me-2 text-muted"></i>
+              {{ citizenData()?.gender || 'N/A' }}
+            </div>
+            <div class="mb-2">
+              <i class="bi bi-telephone me-2 text-muted"></i>
+              {{ citizenData()?.contactInfo || 'N/A' }}
+            </div>
+            <div>
+              <i class="bi bi-geo-alt me-2 text-muted"></i>
+              {{ citizenData()?.address || 'N/A' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="col-lg-8">
+        <!-- Documents Section -->
+        <div class="card mb-3">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-file-earmark me-2"></i>Documents</span>
+          </div>
+
+          <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>File</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  @if (isClerk) { <th>Actions</th> }
+                </tr>
+              </thead>
+              <tbody>
+                @for (doc of documentList(); track doc.documentId) {
+                  <tr>
+                    <td><span class="badge bg-secondary">{{ doc.docType }}</span></td>
+                    <td>
+                      <a [href]="doc.fileUri" target="_blank" class="text-truncate d-inline-block file-link">
+                        <i class="bi bi-file-earmark me-1"></i>{{ doc.fileUri }}
+                      </a>
+                    </td>
+                    <td>{{ doc.uploadedDate | date:'mediumDate' }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="getVerificationBadgeClass(doc.verificationStatus)">
+                        {{ doc.verificationStatus }}
+                      </span>
+                    </td>
+                    @if (isClerk) {
+                      <td>
+                        @if (doc.verificationStatus === 'PENDING') {
+                          <button class="btn btn-sm btn-outline-success me-1" type="button" (click)="verifyDocument(doc.documentId, 'VERIFIED')">
+                            <i class="bi bi-check"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger" type="button" (click)="verifyDocument(doc.documentId, 'REJECTED')">
+                            <i class="bi bi-x"></i>
+                          </button>
+                        } @else {
+                          <span class="text-muted">No actions</span>
+                        }
+                      </td>
+                    }
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="text-center text-muted py-3">
+                      <i class="bi bi-file-earmark me-2"></i>No documents uploaded yet
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Cases Section -->
+        <div class="card">
+          <div class="card-header">
+            <i class="bi bi-folder2-open me-2"></i>
+            {{ isLawyer ? 'Cases Assigned to you' : 'Cases Filed' }}
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Filed</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (caseItem of filteredCases(); track caseItem.caseId) {
+                  <tr>
+                    <td>{{ caseItem.caseId }}</td>
+                    <td>{{ caseItem.title }}</td>
+                    <td>{{ caseItem.filedDate | date:'mediumDate' }}</td>
+                    <td><span class="badge bg-secondary">{{ caseItem.status }}</span></td>
+                    <td>
+                      <a [routerLink]="['/cases', caseItem.caseId]" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye"></i>
+                      </a>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="text-center text-muted py-2">No cases</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (isLoading()) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+}

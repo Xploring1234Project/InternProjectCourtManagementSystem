@@ -1,0 +1,27 @@
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.small-text {
+    font-size: 0.85rem;
+}
+
+.doc-link-width {
+    max-width: 160px;
+}
+
+.custom-card-padding {
+    padding: 10px;
+}
+
+/* Ensure scannability of table content */
+.table td {
+    vertical-align: middle;
+}

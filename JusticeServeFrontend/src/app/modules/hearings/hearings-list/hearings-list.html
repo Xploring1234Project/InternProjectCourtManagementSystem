@@ -1,0 +1,71 @@
+<div class="page-header d-flex justify-content-between align-items-center m-3">
+  <h4><i class="bi bi-calendar-event me-2"></i>Hearings</h4>
+  @if (!isLawyer) {
+    <a routerLink="/hearings/new" class="btn btn-primary">
+      <i class="bi bi-calendar-plus me-1"></i>Schedule Hearing
+    </a>
+  }
+</div>
+
+<div class="p-4">
+  <div class="card mb-3">
+    <div class="card-body py-2 d-flex gap-2" [formGroup]="filterForm">
+      <input class="form-control form-control-sm w-50" placeholder="Search by case..." formControlName="search">
+      <select class="form-select form-select-sm filter-select" formControlName="filterStatus">
+        <option value="">All statuses</option>
+        @for (status of statuses; track status) {
+          <option [value]="status">{{ status }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body p-0">
+      @if (loading()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary"></div>
+        </div>
+      }
+
+      @if (!loading()) {
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Case</th>
+                <th>Judge</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (hearing of filtered; track hearing.hearingId) {
+                <tr>
+                  <td>#{{ hearing.hearingId }}</td>
+                  <td>{{ hearing.caseTitle }}</td>
+                  <td>{{ hearing.judgeName }}</td>
+                  <td>{{ hearing.date | date:'mediumDate' }}</td>
+                  <td>{{ hearing.time }}</td>
+                  <td><span class="badge" [ngClass]="badge(hearing.status)">{{ hearing.status }}</span></td>
+                  <td>
+                    <a [routerLink]="['/hearings', hearing.hearingId]" class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="text-center text-muted py-4">No hearings</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>

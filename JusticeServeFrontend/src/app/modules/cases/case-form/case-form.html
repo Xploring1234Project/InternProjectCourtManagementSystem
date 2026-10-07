@@ -1,0 +1,201 @@
+<div class="page-header m-3">
+  <h4><i class="bi bi-folder-plus me-2"></i>File New Case</h4>
+</div>
+
+<div class="p-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-body p-4">
+
+          @if (errorMessage()) {
+            <div class="alert alert-danger">
+              <i class="bi bi-exclamation-circle me-2"></i>{{ errorMessage() }}
+            </div>
+          }
+
+          @if (successMessage()) {
+            <div class="alert alert-success">
+              <i class="bi bi-check-circle me-2"></i>{{ successMessage() }}
+            </div>
+          }
+
+          <form [formGroup]="caseForm" (ngSubmit)="onSubmit()">
+
+            <!-- Case Title -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Case Title <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="title"
+                     placeholder="e.g. Property Dispute – John vs State"
+                     [class.is-invalid]="caseForm.get('title')?.touched && caseForm.get('title')?.invalid">
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Description</label>
+              <textarea class="form-control" rows="4" formControlName="description"
+                        placeholder="Briefly describe the nature of your case..."></textarea>
+            </div>
+
+            <!-- Citizen (self for CITIZEN role) -->
+            @if (isCitizen) {
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Filing As</label>
+                <div class="alert alert-info py-2 mb-0 d-flex align-items-center gap-2">
+                  <i class="bi bi-person-circle fs-5"></i>
+                  <div>
+                    <strong>{{ authService.currentUser?.name }}</strong>
+                    <div class="small text-muted">Your citizen profile will be linked automatically</div>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <!-- Clerk / Admin: select citizen -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Citizen <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="citizenId"
+                        [class.is-invalid]="caseForm.get('citizenId')?.touched && caseForm.get('citizenId')?.value === 0">
+                  <option [value]="0">Select citizen...</option>
+                  @for (citizen of citizensList(); track citizen.citizenId) {
+                    <option [value]="citizen.citizenId">
+                      {{ citizen.name }} (ID: {{ citizen.citizenId }})
+                    </option>
+                  }
+                </select>
+              </div>
+            }
+
+            <!-- ── Lawyer Section ─────────────────────────────────── -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Lawyer (Optional)</label>
+
+              <div class="card border-0 bg-light p-3 mb-2">
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" role="switch"
+                         id="hasLawyerSwitch" formControlName="hasLawyerToggle"
+                         (change)="onLawyerToggle()">
+                  <label class="form-check-label fw-semibold" for="hasLawyerSwitch">
+                    I already know a lawyer and want to add them now
+                  </label>
+                </div>
+                <div class="small text-muted mt-1 ms-4">
+                  If you have a personal lawyer registered on JusticeServe, search and select them here.
+                  Otherwise leave this off — the clerk will assign one for you.
+                </div>
+              </div>
+
+              <!-- Lawyer search & select -->
+              @if (caseForm.get('hasLawyerToggle')?.value) {
+                <div class="mt-2">
+
+                  @if (isLoadingLawyers()) {
+                    <div class="text-center py-3">
+                      <span class="spinner-border spinner-border-sm text-primary me-2"></span>
+                      <small class="text-muted">Loading lawyers from server...</small>
+                    </div>
+                  }
+
+                  @if (lawyerLoadErrorMessage()) {
+                    <div class="alert alert-warning py-2 small">
+                      <i class="bi bi-exclamation-triangle me-1"></i>{{ lawyerLoadErrorMessage() }}
+                    </div>
+                  }
+
+                  @if (!isLoadingLawyers() && allLawyersList().length === 0 && !lawyerLoadErrorMessage()) {
+                    <div class="alert alert-info py-2 small">
+                      <i class="bi bi-info-circle me-1"></i>No lawyers registered in the system yet.
+                    </div>
+                  }
+
+                  @if (!isLoadingLawyers() && allLawyersList().length > 0) {
+                    <!-- Search box -->
+                    <div class="input-group mb-2">
+                      <span class="input-group-text"><i class="bi bi-search"></i></span>
+                      <input type="text" class="form-control" formControlName="lawyerSearchTerm"
+                             placeholder="Search by name or email..."
+                             (input)="filterLawyersList()">
+                      @if (caseForm.get('lawyerSearchTerm')?.value) {
+                        <button type="button" class="btn btn-outline-secondary" (click)="clearLawyerSearch()">
+                          <i class="bi bi-x"></i>
+                        </button>
+                      }
+                    </div>
+
+                    <!-- Lawyer list -->
+                    <div class="border rounded lawyer-list-container">
+                      @for (lawyer of filteredLawyersList(); track lawyer.userId) {
+                        <div class="d-flex align-items-center gap-3 px-3 py-2 lawyer-option"
+                             [class.selected-lawyer]="selectedLawyerId() === lawyer.userId"
+                             (click)="selectLawyer(lawyer)">
+                          <div class="lawyer-avatar">
+                            {{ lawyer.name[0]?.toUpperCase() }}
+                          </div>
+                          <div class="flex-grow-1">
+                            <div class="fw-semibold small">{{ lawyer.name }}</div>
+                            <div class="text-muted small-text">{{ lawyer.email }}</div>
+                           
+                          </div>
+                          @if (selectedLawyerId() === lawyer.userId) {
+                            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                          }
+                        </div>
+                      } @empty {
+                        @if (caseForm.get('lawyerSearchTerm')?.value) {
+                          <div class="text-muted small text-center py-3">
+                            <i class="bi bi-search me-1"></i>No lawyer found for "{{ caseForm.get('lawyerSearchTerm')?.value }}"
+                          </div>
+                        }
+                      }
+                    </div>
+
+                    <div class="text-muted small mt-1">
+                      {{ allLawyersList().length }} lawyer(s) available · {{ filteredLawyersList().length }} shown
+                    </div>
+                  }
+
+                  <!-- Selected chip -->
+                  @if (selectedLawyerId()) {
+                    <div class="alert alert-success d-flex align-items-center gap-2 mt-2 py-2">
+                      <i class="bi bi-briefcase-fill"></i>
+                      <div>
+                        <strong>{{ selectedLawyerName() }}</strong> selected as your lawyer.
+                        <div class="small">They will be notified when you file this case.</div>
+                      </div>
+                      <button type="button" class="btn btn-sm btn-outline-danger ms-auto" (click)="clearSelectedLawyer()">
+                        <i class="bi bi-x"></i> Deselect
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Info Message -->
+            <div class="alert border py-2 small"
+                 [ngClass]="caseForm.get('hasLawyerToggle')?.value && selectedLawyerId() ? 'alert-success' : 'alert-light'">
+              <i class="bi me-1"
+                 [ngClass]="caseForm.get('hasLawyerToggle')?.value && selectedLawyerId() ? 'bi-check-circle text-success' : 'bi-info-circle text-primary'"></i>
+              @if (caseForm.get('hasLawyerToggle')?.value && selectedLawyerId()) {
+                <span>Lawyer <strong>{{ selectedLawyerName() }}</strong> will be notified when you submit.</span>
+              } @else {
+                <span>After filing, the court clerk will review your case and assign a lawyer. You will be notified once it is accepted.</span>
+              }
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button type="submit" class="btn btn-primary" [disabled]="isSubmitting()">
+                @if (isSubmitting()) {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                } @else {
+                  <i class="bi bi-send me-1"></i>
+                }
+                File Case
+              </button>
+              <a routerLink="/cases" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

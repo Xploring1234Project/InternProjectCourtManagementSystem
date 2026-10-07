@@ -1,0 +1,44 @@
+.metric-label-lg {
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.metric-value-lg {
+  font-size: 2.5rem;
+  color: #0d6efd;
+}
+
+.scope-badge {
+  font-size: 0.9rem;
+}
+
+.metric-box {
+  background: #f8f9fa;
+}
+
+.metric-box-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-box-value {
+  font-size: 2rem;
+  color: #0d6efd;
+}
+
+.text-blue-custom {
+  color: #0d6efd;
+}
+
+.badge-margin {
+  margin: 0 0.25rem;
+}
+
+.text-compliance-success {
+  color: #28a745;
+}
+
+.text-compliance-warning {
+  color: #ffc107;
+}

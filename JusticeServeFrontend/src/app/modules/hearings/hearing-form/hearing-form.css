@@ -1,0 +1,5 @@
+/* Component-specific styles can be added here.
+   Bootstrap handles the spacing and alignments natively. */
+.text-danger {
+  color: #dc3545;
+}

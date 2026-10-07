@@ -1,0 +1,14 @@
+/* Styling for the search input width as per original layout */
+.search-input {
+    width: 50% !important;
+}
+
+/* Ensure table responsive container maintains alignment */
+.table-responsive {
+    width: 100%;
+}
+
+/* Vertical alignment for table cells */
+.table td, .table th {
+    vertical-align: middle;
+}

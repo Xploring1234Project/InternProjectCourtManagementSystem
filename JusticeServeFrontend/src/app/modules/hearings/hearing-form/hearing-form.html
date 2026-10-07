@@ -1,0 +1,100 @@
+<div class="page-header m-3">
+  <h4><i class="bi bi-calendar-plus me-2"></i>Schedule Hearing</h4>
+</div>
+
+<div class="p-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body p-4">
+          
+          @if (error()) {
+            <div class="alert alert-danger">{{ error() }}</div>
+          }
+          @if (success()) {
+            <div class="alert alert-success">{{ success() }}</div>
+          }
+          
+          <form [formGroup]="hearingForm" (ngSubmit)="onSubmit()">
+
+            <!-- Case Selection -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Case <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="caseId" (change)="onCaseChange()" 
+                      [ngClass]="{'is-invalid': hearingForm.get('caseId')?.invalid && hearingForm.get('caseId')?.touched}">
+                <option value="">Select case...</option>
+                @for (caseItem of cases(); track caseItem.caseId) {
+                  <option [value]="caseItem.caseId">
+                    #{{ caseItem.caseId }} – {{ caseItem.title }} ({{ caseItem.status }})
+                  </option>
+                }
+              </select>
+              @if (hearingForm.get('caseId')?.invalid && hearingForm.get('caseId')?.touched) {
+                <div class="invalid-feedback">Please select a valid case.</div>
+              }
+              
+              @if (selectedCase()) {
+                <div class="mt-2 alert alert-light py-2 small">
+                  <strong>Citizen ID:</strong> {{ selectedCase()?.citizenId }}
+                  @if (selectedCase()?.lawyerId) {
+                    <span>&nbsp;·&nbsp;<strong>Lawyer ID:</strong> {{ selectedCase()?.lawyerId }}</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Judge Selection -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Judge <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="judgeId"
+                      [ngClass]="{'is-invalid': hearingForm.get('judgeId')?.invalid && hearingForm.get('judgeId')?.touched}">
+                <option value="">Select judge...</option>
+                @for (judge of judges(); track judge.userId) {
+                  <option [value]="judge.userId">{{ judge.name }} ({{ judge.email }})</option>
+                }
+              </select>
+              @if (hearingForm.get('judgeId')?.invalid && hearingForm.get('judgeId')?.touched) {
+                <div class="invalid-feedback">Please select a judge.</div>
+              }
+            </div>
+
+            <!-- Date & Time -->
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" formControlName="date"
+                       [ngClass]="{'is-invalid': hearingForm.get('date')?.invalid && hearingForm.get('date')?.touched}">
+                @if (hearingForm.get('date')?.invalid && hearingForm.get('date')?.touched) {
+                  <div class="invalid-feedback">Date is required.</div>
+                }
+              </div>
+              
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Time <span class="text-danger">*</span></label>
+                <input type="time" class="form-control" formControlName="time"
+                       [ngClass]="{'is-invalid': hearingForm.get('time')?.invalid && hearingForm.get('time')?.touched}">
+                @if (hearingForm.get('time')?.invalid && hearingForm.get('time')?.touched) {
+                  <div class="invalid-feedback">Time is required.</div>
+                }
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+              <button type="submit" class="btn btn-primary" [disabled]="hearingForm.invalid || loading()">
+                @if (loading()) {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                @if (!loading()) {
+                  <i class="bi bi-calendar-check me-1"></i>
+                }
+                Schedule Hearing
+              </button>
+              <a routerLink="/hearings" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

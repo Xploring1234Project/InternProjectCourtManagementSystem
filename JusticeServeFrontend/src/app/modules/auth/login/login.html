@@ -1,0 +1,80 @@
+<div class="login-wrapper">
+  <div class="container login-container">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        
+        <div class="text-center mb-4 header-fade">
+          <i class="bi bi-balance-scale logo-glow"></i>
+          <h2 class="text-white mt-2 fw-bold">JusticeServe</h2>
+          <p class="text-white-50">Legal Case Management System</p>
+        </div>
+        
+        <div class="card login-card shadow-lg">
+          <div class="card-body p-4">
+            <h5 class="fw-bold mb-4">Sign In</h5>
+            
+            @if (error()) {
+              <div class="alert alert-danger py-2">{{ error() }}</div>
+            } @else if (loading()) {
+               <div class="alert alert-info py-2">Validating credentials...</div>
+            }
+
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+              
+              <!-- Email Field -->
+              <div class="mb-3">
+                <label class="form-label">Email Address</label>
+                <input 
+                  type="email" 
+                  class="form-control" 
+                  formControlName="email"
+                  [class.is-invalid]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
+                  placeholder="admin@justiceserve.com">
+                
+                @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
+                  <div class="invalid-feedback">
+                    @if (loginForm.get('email')?.hasError('required')) { Email is required. }
+                    @if (loginForm.get('email')?.hasError('email')) { Invalid email format. }
+                  </div>
+                }
+              </div>
+              
+              <!-- Password Field -->
+              <div class="mb-4">
+                <label class="form-label">Password</label>
+                <input 
+                  type="password" 
+                  class="form-control" 
+                  formControlName="password"
+                  [class.is-invalid]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+                  placeholder="••••••••">
+                
+                @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+                  <div class="invalid-feedback">
+                    @if (loginForm.get('password')?.hasError('required')) { Password is required. }
+                    @if (loginForm.get('password')?.hasError('minlength')) { Must be at least 6 characters. }
+                  </div>
+                }
+              </div>
+              
+              <button type="submit" class="btn btn-primary w-100" [disabled]="loginForm.invalid || loading()">
+                @if (loading()) {
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Signing in...
+                } @else {
+                  Sign In
+                }
+              </button>
+            </form>
+            
+            <p class="text-center mt-3 mb-0 text-muted" style="font-size:0.88rem">
+              Don't have an account? 
+              <a routerLink="/auth/register" class="text-primary fw-bold">Register</a>
+            </p>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>

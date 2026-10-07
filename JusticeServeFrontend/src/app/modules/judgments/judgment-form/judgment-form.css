@@ -1,0 +1,14 @@
+/* judgment-form.component.css */
+
+.page-header {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 1rem;
+}
+
+/* Enhancing the form validation user experience */
+.invalid-feedback {
+  display: block;
+  font-size: 0.875em;
+  color: #dc3545;
+}

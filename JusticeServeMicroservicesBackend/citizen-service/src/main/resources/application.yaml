@@ -1,0 +1,60 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: citizen-service
+    # git configurations
+  config:
+    import: "optional:configserver:http://localhost:8888"
+  cloud:
+    config:
+      fail-fast: false
+      label: main
+      # database configurations
+  datasource:
+    url: jdbc:mysql://localhost:3306/micro_citizen_db
+    username: root
+    password: Harsha@2004
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics,circuitbreakers" # Choose specific ones
+  endpoint:
+    health:
+      show-details: always # Helpful for debugging
+  info:
+    env:
+      enabled: true
+    build:
+      enabled: true
+    git:
+      enabled: true
+
+#info:
+#  app:
+#    name: "Citizen Service"
+#    description: "Handles Citizen profiles and Documents"
+#    version: "1.0.2"
+#  contact:
+#    email: "dev-team@company.com"
+#

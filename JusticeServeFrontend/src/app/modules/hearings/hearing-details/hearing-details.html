@@ -1,0 +1,164 @@
+<div class="page-header d-flex justify-content-between align-items-center m-3">
+  <h4><i class="bi bi-calendar-event me-2"></i>Hearing Details</h4>
+  <a routerLink="/hearings" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Back
+  </a>
+</div>
+
+@if (!loading() && hearing()) {
+  <div class="p-4">
+    <div class="row g-3">
+      
+      <!-- Hearing Info -->
+      <div class="col-lg-5">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <span>Hearing #{{ hearing()?.hearingId }}</span>
+            <span class="badge" [ngClass]="badge(hearing()!.status)">{{ hearing()?.status }}</span>
+          </div>
+          <div class="card-body">
+            <div class="mb-2">
+              <small class="text-muted">Case</small><br>
+              <strong>{{ hearing()?.caseTitle }}</strong>
+            </div>
+            <div class="mb-2">
+              <small class="text-muted">Judge</small><br>
+              <strong>{{ hearing()?.judgeName }}</strong>
+            </div>
+            <div class="mb-2">
+              <small class="text-muted">Date & Time</small><br>
+              <strong>{{ hearing()?.date | date:'longDate' }} at {{ hearing()?.time }}</strong>
+            </div>
+          </div>
+          
+          <!-- Status Update - Only for Clerk/Admin/Judge and when case is not closed -->
+          @if (!isLawyer && !isCaseClosed) {
+            <div class="card-footer">
+              <label class="form-label mb-1">Update Status</label>
+              <form [formGroup]="statusForm" class="d-flex gap-2" (ngSubmit)="updateStatus()">
+                <select class="form-select form-select-sm" formControlName="statusControl">
+                  @for (status of statuses; track status) {
+                    <option [value]="status">{{ status }}</option>
+                  }
+                </select>
+                <button type="submit" class="btn btn-sm btn-primary" [disabled]="statusForm.invalid">Update</button>
+              </form>
+              @if (statusMsg()) {
+                <div class="alert alert-success status-msg-alert">{{ statusMsg() }}</div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Case Details -->
+      <div class="col-lg-7">
+        <div class="card">
+          <div class="card-header"><i class="bi bi-folder me-2"></i>Case Information</div>
+          @if (caseData()) {
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-sm-6">
+                  <small class="text-muted d-block mb-1"><strong>Case ID</strong></small>
+                  <span>#{{ caseData()?.caseId }}</span>
+                </div>
+                <div class="col-sm-6">
+                  <small class="text-muted d-block mb-1"><strong>Title</strong></small>
+                  <span>{{ caseData()?.title }}</span>
+                </div>
+                <div class="col-12">
+                  <small class="text-muted d-block mb-1"><strong>Description</strong></small>
+                  <p class="mb-0">{{ caseData()?.description || 'No description' }}</p>
+                </div>
+                <div class="col-sm-6">
+                  <small class="text-muted d-block mb-1"><strong>Citizen</strong></small>
+                  <span>{{ caseData()?.citizenName }}</span>
+                </div>
+                <div class="col-sm-6">
+                  <small class="text-muted d-block mb-1"><strong>Filed Date</strong></small>
+                  <span>{{ caseData()?.filedDate | date:'mediumDate' }}</span>
+                </div>
+                <div class="col-sm-6">
+                  <small class="text-muted d-block mb-1"><strong>Status</strong></small>
+                  <span class="badge" [ngClass]="caseStatusBadge(caseData()!.status)">{{ caseData()?.status }}</span>
+                </div>
+                <div class="col-sm-6">
+                  <small class="text-muted d-block mb-1"><strong>Judge</strong></small>
+                  <span>{{ caseData()?.judgeName || 'Not assigned' }}</span>
+                </div>
+              </div>
+              
+              @if (isCaseClosed) {
+                <div class="alert alert-warning mt-3 mb-0">
+                  <i class="bi bi-exclamation-triangle me-2"></i>
+                  This case is {{ caseData()?.status?.toLowerCase() }}. Hearing status updates and proceedings cannot be modified.
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Proceedings - Only for Clerk/Admin/Judge -->
+    @if (!isLawyer) {
+      <div class="row g-3 mt-3">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between">
+              <span><i class="bi bi-journal-text me-2"></i>Proceedings</span>
+              @if (!isCaseClosed) {
+                <button class="btn btn-sm btn-outline-primary" (click)="showForm.set(!showForm())">+ Add</button>
+              }
+            </div>
+            
+            @if (showForm() && !isCaseClosed) {
+              <div class="card-body border-bottom bg-light">
+                <form [formGroup]="proceedingForm" (ngSubmit)="addProceeding()">
+                  <div class="mb-2">
+                    <label class="form-label mb-1">Notes</label>
+                    <textarea class="form-control" rows="3" formControlName="notes" placeholder="Proceeding notes..."
+                              [ngClass]="{'is-invalid': proceedingForm.get('notes')?.invalid && proceedingForm.get('notes')?.touched}"></textarea>
+                    @if (proceedingForm.get('notes')?.invalid && proceedingForm.get('notes')?.touched) {
+                      <div class="invalid-feedback">Notes are required.</div>
+                    }
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label mb-1">Status</label>
+                    <input class="form-control" formControlName="status" placeholder="e.g. IN_PROGRESS"
+                           [ngClass]="{'is-invalid': proceedingForm.get('status')?.invalid && proceedingForm.get('status')?.touched}">
+                    @if (proceedingForm.get('status')?.invalid && proceedingForm.get('status')?.touched) {
+                      <div class="invalid-feedback">Status is required.</div>
+                    }
+                  </div>
+                  <button type="submit" class="btn btn-sm btn-success" [disabled]="proceedingForm.invalid">Add Proceeding</button>
+                </form>
+              </div>
+            }
+              
+            <div class="card-body p-0">
+              @for (proceeding of proceedings(); track proceeding.proceedingId || $index; let i = $index) {
+                <div class="proceeding-item">
+                  <div class="d-flex justify-content-between">
+                    <strong>Proceeding #{{ i + 1 }}</strong>
+                    <span>{{ proceeding.date | date:'mediumDate' }}</span>
+                  </div>
+                  <p class="mb-1 mt-1">{{ proceeding.notes }}</p>
+                  <span class="badge bg-secondary">{{ proceeding.status }}</span>
+                </div>
+              } @empty {
+                <div class="text-center text-muted py-3">No proceedings recorded</div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+@if (loading()) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+}

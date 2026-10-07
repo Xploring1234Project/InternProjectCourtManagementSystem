@@ -1,0 +1,171 @@
+<div class="page-header m-3">
+  <h4><i class="bi bi-shield-check me-2"></i>Compliance & Audits</h4>
+</div>
+
+<!-- Toast Notification -->
+@if (toast()) {
+  <div class="alert d-flex align-items-center gap-2 m-3 alert-dismissible fade show"
+       [ngClass]="toast()!.type === 'success' ? 'alert-success' : 'alert-danger'">
+    <i class="bi" [ngClass]="toast()!.type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill'"></i>
+    {{ toast()!.msg }}
+    <button type="button" class="btn-close" (click)="toast.set(null)"></button>
+  </div>
+}
+
+<div class="p-4">
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="tab() === 'compliance'" (click)="tab.set('compliance')" role="button">Compliance Records</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="tab() === 'audits'" (click)="tab.set('audits')" role="button">Audits</a>
+    </li>
+  </ul>
+
+  <!-- Compliance Records -->
+  @if (tab() === 'compliance') {
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Compliance Records</span>
+        @if (isCompliance) {
+          <button class="btn btn-sm btn-primary" (click)="showRecordForm.set(!showRecordForm())">+ New Record</button>
+        }
+      </div>
+      
+      @if (showRecordForm()) {
+        <div class="card-body border-bottom bg-light">
+          <form [formGroup]="complianceForm" (ngSubmit)="addRecord()">
+            <div class="row g-2">
+              <div class="col-md-2">
+                <input type="number" class="form-control form-control-sm" formControlName="entityId" placeholder="Entity ID"
+                       [ngClass]="{'is-invalid': complianceForm.get('entityId')?.invalid && complianceForm.get('entityId')?.touched}">
+              </div>
+              <div class="col-md-3">
+                <select class="form-select form-select-sm" formControlName="type"
+                        [ngClass]="{'is-invalid': complianceForm.get('type')?.invalid && complianceForm.get('type')?.touched}">
+                  <option value="">Type...</option>
+                  <option value="CASE">CASE</option>
+                  <option value="HEARING">HEARING</option>
+                  <option value="JUDGMENT">JUDGMENT</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select class="form-select form-select-sm" formControlName="result"
+                        [ngClass]="{'is-invalid': complianceForm.get('result')?.invalid && complianceForm.get('result')?.touched}">
+                  <option value="">Result...</option>
+                  <option value="COMPLIANT">COMPLIANT</option>
+                  <option value="NON_COMPLIANT">NON_COMPLIANT</option>
+                  <option value="PENDING">PENDING</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <input class="form-control form-control-sm" formControlName="notes" placeholder="Notes">
+              </div>
+              <div class="col-md-1">
+                <button type="submit" class="btn btn-sm btn-success w-100" [disabled]="complianceForm.invalid">Add</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      }
+
+      <div class="card-body p-0">
+        @if (loading()) {
+          <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+        }
+        
+        @if (!loading()) {
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr><th>ID</th><th>Entity ID</th><th>Type</th><th>Result</th><th>Date</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              @for (record of records(); track record.complianceId) {
+                <tr>
+                  <td>#{{ record.complianceId }}</td>
+                  <td>{{ record.entityId }}</td>
+                  <td><span class="badge bg-secondary">{{ record.type }}</span></td>
+                  <td><span class="badge" [ngClass]="resultBadge(record.result)">{{ record.result }}</span></td>
+                  <td>{{ record.date | date:'mediumDate' }}</td>
+                  <td>{{ record.notes || '—' }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="6" class="text-center text-muted py-3">No records</td></tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Audits -->
+  @if (tab() === 'audits') {
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Audit Records</span>
+        @if (isAuditor) {
+          <button class="btn btn-sm btn-primary" (click)="showAuditForm.set(!showAuditForm())">+ New Audit</button>
+        }
+      </div>
+
+      @if (showAuditForm()) {
+        <div class="card-body border-bottom bg-light">
+          <form [formGroup]="auditForm" (ngSubmit)="addAudit()">
+            <div class="row g-2">
+
+              <div class="col-md-5">
+                <input class="form-control form-control-sm" formControlName="scope" placeholder="Scope of audit"
+                       [ngClass]="{'is-invalid': auditForm.get('scope')?.invalid && auditForm.get('scope')?.touched}">
+              </div>
+              <div class="col-md-5">
+                <input class="form-control form-control-sm" formControlName="findings" placeholder="Initial findings">
+              </div>
+              <div class="col-md-2">
+                <button type="submit" class="btn btn-sm btn-success w-100" [disabled]="auditForm.invalid">Add</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      }
+
+      <div class="card-body p-0">
+        @if (auditsLoading()) {
+          <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+        }
+        
+        @if (!auditsLoading()) {
+          <table class="table table-hover mb-0">
+            <thead>
+               <tr><th>ID</th><!--<th>Officer</th>--><th>Scope</th><th>Findings</th><th>Date</th><th>Status</th>
+                @if(!isCompliance) {<th>Update</th>}</tr> 
+            </thead>
+            <tbody>
+              @for (audit of audits(); track audit.auditId) {
+                <tr>
+                  <td>#{{ audit.auditId }}</td>
+                  <td>{{ audit.scope }}</td>
+                  <td>{{ (audit.findings || '—') | slice:0:40 }}</td>
+                  <td>{{ audit.date | date:'mediumDate' }}</td>
+                  <td><span class="badge" [ngClass]="auditBadge(audit.status)">{{ audit.status }}</span></td>
+                  @if(!isCompliance){
+                  <td>
+                    <select class="form-select form-select-sm status-select" [value]="audit.status"
+                            (change)="updateAuditStatus(audit.auditId, $any($event.target).value)">
+                      <option value="OPEN">OPEN</option>
+                      <option value="REVIEW">REVIEW</option>
+                      <option value="CLOSED">CLOSED</option>
+                    </select>
+                  </td>
+                }
+                </tr>
+              } @empty {
+                <tr><td colspan="7" class="text-center text-muted py-3">No audits</td></tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+  }
+</div>

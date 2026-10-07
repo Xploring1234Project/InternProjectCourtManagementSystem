@@ -1,0 +1,31 @@
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a3a5c 0%, #2e6da4 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-container {
+  position: relative;
+  z-index: 5;
+}
+
+.login-card {
+  border: none;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Kept the logo-glow for the static icon as it adds a nice professional touch */
+.logo-glow {
+  font-size: 3.5rem;
+  display: inline-block;
+  color: #ffc107; /* Bootstrap Warning Color */
+}
+
+.header-fade h2 {
+  letter-spacing: 1px;
+}

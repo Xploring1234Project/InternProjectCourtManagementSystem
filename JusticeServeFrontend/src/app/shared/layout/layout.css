@@ -1,0 +1,74 @@
+/* Sidebar Styles */
+.brand-logo {
+  height: 32px;
+  width: auto;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  font-weight: 700;
+  color: #333;
+}
+
+.user-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.user-role-label {
+  font-size: 0.75rem;
+}
+
+/* Topbar Styles */
+.topbar-clock {
+  font-size: 0.85rem;
+}
+
+.notification-pill {
+  font-size: 0.65rem;
+}
+
+.user-display-name {
+  font-size: 0.9rem;
+}
+
+/* Structural Styles (ensure sidebar/main content layout) */
+.sidebar {
+  min-height: 100vh;
+  width: 250px; /* Adjust based on your design */
+  background-color: #212529; /* Standard Bootstrap dark bg */
+  color: white;
+}
+
+.main-content {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.topbar {
+  padding: 0.75rem 1.5rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.nav-section {
+  padding: 0.75rem 1rem 0.25rem;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #6c757d;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.75);
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+}

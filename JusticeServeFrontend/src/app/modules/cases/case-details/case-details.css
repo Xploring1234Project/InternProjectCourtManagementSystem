@@ -1,0 +1,45 @@
+.text-justify {
+  text-align: justify;
+}
+
+.avatar-circle-sm {
+  width: 32px;
+  height: 32px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.timeline-circle {
+  width: 26px;
+  height: 26px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.modal-backdrop-custom {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.max-w-160 {
+  max-width: 160px;
+}
+
+.max-w-200 {
+  max-width: 200px;
+}
+
+.max-w-220 {
+  max-width: 220px;
+}
+
+.proceeding-modal-backdrop {
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1060;
+  padding: 1rem;
+}
+
+.proceeding-modal-content {
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+}

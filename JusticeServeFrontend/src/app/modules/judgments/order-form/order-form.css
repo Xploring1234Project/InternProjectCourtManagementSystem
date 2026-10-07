@@ -1,0 +1,6 @@
+/* Component-specific styles */
+/* Bootstrap handles the primary styling natively (.text-danger, .is-invalid, .invalid-feedback) */
+
+.text-danger {
+  color: #dc3545;
+}

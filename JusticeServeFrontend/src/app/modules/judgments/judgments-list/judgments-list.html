@@ -1,0 +1,202 @@
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h4><i class="bi bi-hammer me-2"></i>Judgments & Court Orders</h4>
+  <div class="d-flex gap-2">
+    <a routerLink="/judgments/orders/new" class="btn btn-outline-primary"><i class="bi bi-file-text me-1"></i>Issue Order</a>
+    <a routerLink="/judgments/new" class="btn btn-primary"><i class="bi bi-plus me-1"></i>Record Judgment</a>
+  </div>
+</div>
+
+<div class="p-4">
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="tab() === 'judgments'" (click)="tab.set('judgments')">Judgments</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="tab() === 'orders'" (click)="tab.set('orders'); loadOrders()">Court Orders</a>
+    </li>
+  </ul>
+
+  <!-- Judgments tab -->
+  @if (tab() === 'judgments') {
+    <div class="card">
+      <div class="card-body p-0">
+        @if (loading()) {
+          <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+        }
+        @if (!loading()) {
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Case</th>
+                  <th>Judge</th>
+                  <th>Summary</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (judgment of judgments(); track judgment.judgmentId) {
+                  <tr>
+                    <td>#{{ judgment.judgmentId }}</td>
+                    <td>{{ judgment.caseTitle }}</td>
+                    <td>{{ judgment.judgeName }}</td>
+                    <td>{{ judgment.summary | slice:0:50 }}...</td>
+                    <td>{{ judgment.date | date:'mediumDate' }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="judgment.status === 'FINAL' ? 'bg-success' : 'bg-warning text-dark'">
+                        {{ judgment.status }}
+                      </span>
+                    </td>
+                    <td>
+                      <button class="btn btn-sm btn-info me-1" (click)="viewJudgment(judgment)">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                      @if (judgment.status === 'DRAFT') {
+                        <button class="btn btn-sm btn-success" (click)="finalize(judgment.judgmentId)">
+                          <i class="bi bi-check-circle me-1"></i>Finalize
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="7" class="text-center text-muted py-4">No judgments</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Orders tab -->
+  @if (tab() === 'orders') {
+    <div class="card">
+      <div class="card-body p-0">
+        @if (ordersLoading()) {
+          <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+        }
+        @if (!ordersLoading()) {
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Case</th>
+                  <th>Judge</th>
+                  <th>Description</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (order of orders(); track order.orderId) {
+                  <tr>
+                    <td>#{{ order.orderId }}</td>
+                    <td>{{ order.caseTitle }}</td>
+                    <td>{{ order.judgeName }}</td>
+                    <td>{{ order.description | slice:0:50 }}...</td>
+                    <td>{{ order.date | date:'mediumDate' }}</td>
+                    <td>
+                      <select class="form-select form-select-sm status-select" 
+                              [ngModel]="order.status" 
+                              (change)="updateOrder(order.orderId, $any($event.target).value)">
+                        <option>ACTIVE</option>
+                        <option>SERVED</option>
+                        <option>EXPIRED</option>
+                      </select>
+                    </td>
+                    <td>
+                      <button class="btn btn-sm btn-info" (click)="viewOrder(order)">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="7" class="text-center text-muted py-4">No orders</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Judgment Modal -->
+@if (selectedJudgment()) {
+  <div class="modal d-block">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Judgment Details</h5>
+          <button type="button" class="btn-close" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-sm-6"><strong>ID:</strong> #{{ selectedJudgment()?.judgmentId }}</div>
+            <div class="col-sm-6"><strong>Date:</strong> {{ selectedJudgment()?.date | date:'medium' }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-6"><strong>Case:</strong> {{ selectedJudgment()?.caseTitle }}</div>
+            <div class="col-sm-6"><strong>Judge:</strong> {{ selectedJudgment()?.judgeName }}</div>
+          </div>
+          <div class="mb-3">
+            <strong>Status:</strong>
+            <span class="badge" [ngClass]="selectedJudgment()?.status === 'FINAL' ? 'bg-success' : 'bg-warning text-dark'">
+              {{ selectedJudgment()?.status }}
+            </span>
+          </div>
+          <div>
+            <strong>Summary:</strong>
+            <p class="mt-2">{{ selectedJudgment()?.summary }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Order Modal -->
+@if (selectedOrder()) {
+  <div class="modal d-block">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Court Order Details</h5>
+          <button type="button" class="btn-close" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-sm-6"><strong>ID:</strong> #{{ selectedOrder()?.orderId }}</div>
+            <div class="col-sm-6"><strong>Date:</strong> {{ selectedOrder()?.date | date:'medium' }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-6"><strong>Case:</strong> {{ selectedOrder()?.caseTitle }}</div>
+            <div class="col-sm-6"><strong>Judge:</strong> {{ selectedOrder()?.judgeName }}</div>
+          </div>
+          <div class="mb-3">
+            <strong>Status:</strong>
+            <span class="badge" [ngClass]="selectedOrder()?.status === 'ACTIVE' ? 'bg-success' : (selectedOrder()?.status === 'SERVED' ? 'bg-info' : 'bg-secondary')">
+              {{ selectedOrder()?.status }}
+            </span>
+          </div>
+          <div>
+            <strong>Description:</strong>
+            <p class="mt-2">{{ selectedOrder()?.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal Backdrop -->
+@if (selectedJudgment() || selectedOrder()) {
+  <div class="modal-backdrop fade show" (click)="closeModal()"></div>
+}

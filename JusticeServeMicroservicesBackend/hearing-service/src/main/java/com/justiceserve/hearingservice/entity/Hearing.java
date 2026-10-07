@@ -1,0 +1,58 @@
+package com.justiceserve.hearingservice.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+@Entity
+@Table(name = "hearings")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Hearing {
+
+    public enum HearingStatus { SCHEDULED, IN_PROGRESS, COMPLETED, ADJOURNED, CANCELLED }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long hearingId;
+
+    /** FK to Case in case-service — plain Long, no local cases table */
+    @Column(nullable = false)
+    private Long caseId;
+
+    /** FK to User (JUDGE) in identity-service — plain Long, no local users table */
+    @Column(nullable = false)
+    private Long judgeId;
+
+    /** Cached judge name to avoid Feign on every read — updated at schedule time */
+    //@Column(length = 100)
+    //private String judgeName; //
+
+    //@Column(nullable = false)
+    //private Long citizenId;  //
+
+    //private Long lawyerId;  //
+
+    //@Column(length = 250)
+    //private String caseTitle;//
+
+    @Column(nullable = false)
+    private LocalDate date;
+
+    @Column(nullable = false)
+    private LocalTime time;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 15)
+    private HearingStatus status;
+
+    @PrePersist
+    public void prePersist() {
+        if (status == null) status = HearingStatus.SCHEDULED;
+    }
+}

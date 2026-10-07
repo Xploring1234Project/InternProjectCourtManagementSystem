@@ -1,0 +1,71 @@
+<div class="page-header">
+  <h4><i class="bi bi-hammer me-2"></i>Record Judgment</h4>
+</div>
+<div class="p-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-body p-4">
+          
+          @if (error()) {
+            <div class="alert alert-danger">{{ error() }}</div>
+          }
+          
+          @if (success()) {
+            <div class="alert alert-success">{{ success() }}</div>
+          }
+
+          <form [formGroup]="judgmentForm" (ngSubmit)="onSubmit()">
+            
+            <div class="mb-3">
+              <label class="form-label">Case <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="caseId" [class.is-invalid]="judgmentForm.get('caseId')?.invalid && judgmentForm.get('caseId')?.touched">
+                <option [value]="0">Select case...</option>
+                @for (courtCase of cases(); track courtCase.caseId) {
+                  <option [value]="courtCase.caseId">#{{ courtCase.caseId }} – {{ courtCase.title }}</option>
+                }
+              </select>
+              @if (judgmentForm.get('caseId')?.invalid && judgmentForm.get('caseId')?.touched) {
+                <div class="invalid-feedback">Please select a valid case.</div>
+              }
+            </div>
+
+            @if (auth.role !== 'JUDGE') {
+              <div class="mb-3">
+                <label class="form-label">Judge <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="judgeId" [class.is-invalid]="judgmentForm.get('judgeId')?.invalid && judgmentForm.get('judgeId')?.touched">
+                  <option [value]="0">Select judge...</option>
+                  @for (judge of judges(); track judge.userId) {
+                    <option [value]="judge.userId">{{ judge.name }}</option>
+                  }
+                </select>
+                @if (judgmentForm.get('judgeId')?.invalid && judgmentForm.get('judgeId')?.touched) {
+                  <div class="invalid-feedback">Please select a valid judge.</div>
+                }
+              </div>
+            }
+
+            <div class="mb-4">
+              <label class="form-label">Judgment Summary <span class="text-danger">*</span></label>
+              <textarea class="form-control" rows="5" formControlName="summary" placeholder="Detailed judgment summary..." [class.is-invalid]="judgmentForm.get('summary')?.invalid && judgmentForm.get('summary')?.touched"></textarea>
+              @if (judgmentForm.get('summary')?.invalid && judgmentForm.get('summary')?.touched) {
+                <div class="invalid-feedback">Judgment summary is required (minimum 10 characters).</div>
+              }
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="loading() || judgmentForm.invalid">
+                @if (loading()) {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                Record Judgment
+              </button>
+              <a routerLink="/judgments" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+package com.justiceserve.hearingservice.dto;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+@Data
+public class HearingRequest {
+    @NotNull
+    private Long caseId;
+    @NotNull private Long judgeId;
+    //@NotNull private Long citizenId;//
+    //private Long lawyerId;//
+    //private String caseTitle;//
+    @NotNull private LocalDate date;
+    @NotNull private LocalTime time;
+}

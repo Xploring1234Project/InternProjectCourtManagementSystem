@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: authentication-service
+  config:
+    import: "optional:configserver:http://localhost:8888"
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true # Change this to false to let ErrorDecoder work
+  datasource:
+    url: jdbc:mysql://localhost:3306/micro_auth_db
+    username: root
+    password: Harsha@2004
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8082
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+ #If you want to keep Circuit Breaker ON but ignore 400 errors, use this instead:
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        ignore-exceptions:
+          - feign.FeignException.BadRequest
+          - feign.FeignException.Unauthorized
+          - feign.FeignException.NotFound
+          - com.justiceserve.authenticationservice.exception.BadRequestException
+          - com.justiceserve.authenticationservice.exception.ResourceNotFoundException
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics,circuitbreakers" # Choose specific ones
+        loggerLevel: BASIC

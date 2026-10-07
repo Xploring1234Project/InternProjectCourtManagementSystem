@@ -1,0 +1,78 @@
+server:
+  port: 8081
+
+app:
+  cors:
+    allowed-origins: "http://localhost:4200"
+
+spring:
+  application:
+    name: api-gateway
+  config:
+    import: "optional:configserver:http://localhost:8888"
+  cloud:
+    config:
+      fail-fast: false
+      label: main
+
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+          routes:
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/users/**
+
+            - id: authentication-service
+              uri: lb://authentication-service
+              predicates:
+                - Path=/api/auth/**
+
+            - id: citizen-service
+              uri: lb://citizen-service
+              predicates:
+                - Path=/api/citizens/**
+
+            - id: case-service
+              uri: lb://case-service
+              predicates:
+                - Path=/api/cases/**
+
+            - id: hearing-service
+              uri: lb://hearing-service
+              predicates:
+                - Path=/api/hearings/**
+
+            - id: judgment-service
+              uri: lb://judgment-service
+              predicates:
+                - Path=/api/judgments/**, /api/court-orders/**
+
+            - id: report-service
+              uri: lb://report-service
+              predicates:
+                - Path=/api/reports/**
+
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/notifications/**
+
+            - id: compliance-audit-service
+              uri: lb://compliance-audit-service
+              predicates:
+                - Path=/api/compliance/**, /api/audits/**, /api/audit-logs/**
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
